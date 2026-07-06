@@ -1,0 +1,5 @@
+*.env
+.ig_secret*
+run.log
+*.bak
+__pycache__/
