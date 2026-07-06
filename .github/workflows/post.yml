@@ -1,0 +1,39 @@
+name: Đăng Reel Instagram tự động
+
+on:
+  schedule:
+    # GitHub Actions dùng giờ UTC. VN = UTC+7.
+    # 1 Reel/ngày (tài khoản mới → đăng thưa cho an toàn).
+    - cron: "30 12 * * *"   # 19:30 VN (tối)
+  workflow_dispatch:         # cho phép bấm chạy thủ công để test
+
+permissions:
+  contents: write            # để commit lại posted.json
+
+concurrency:
+  group: ig-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Đăng Reel kế tiếp
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+        run: python3 post_next.py
+
+      - name: Lưu trạng thái đã đăng
+        run: |
+          if [ -n "$(git status --porcelain posted.json)" ]; then
+            git config user.name "ig-bot"
+            git config user.email "bot@users.noreply.github.com"
+            git add posted.json
+            git commit -m "Đã đăng Reel ($(date -u +%F))"
+            git push
+          else
+            echo "Không có thay đổi posted.json (có thể hết hàng đợi)."
+          fi
