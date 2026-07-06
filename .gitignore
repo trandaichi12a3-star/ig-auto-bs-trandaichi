@@ -3,3 +3,4 @@
 run.log
 *.bak
 __pycache__/
+.ig_token.local
