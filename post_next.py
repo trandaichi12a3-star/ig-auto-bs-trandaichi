@@ -2,9 +2,10 @@
 """Đăng Reel Instagram kế tiếp trong hàng đợi. Chạy bởi GitHub Actions (máy tắt vẫn đăng).
 Token đọc từ biến môi trường (GitHub secret), KHÔNG hardcode.
 Trạng thái đã đăng lưu ở posted.json (Actions commit lại sau mỗi lần chạy)."""
-import json, os, sys, time, urllib.parse, urllib.request, urllib.error
+import datetime, json, os, sys, time, urllib.parse, urllib.request, urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+MIN_HOURS = 40  # giãn cách tối thiểu giữa 2 lần đăng → nhịp ~2 ngày/bài
 USER_ID = os.environ["IG_USER_ID"]
 TOKEN = os.environ["IG_ACCESS_TOKEN"]
 BASE = "https://graph.instagram.com/v21.0"
@@ -36,6 +37,17 @@ def main():
     posted_path = os.path.join(HERE, "posted.json")
     posted = json.load(open(posted_path, encoding="utf-8")) if os.path.exists(posted_path) else []
     posted_ids = {p["id"] for p in posted}
+
+    # Nhịp ~2 ngày/bài: nếu bài gần nhất đăng chưa đủ MIN_HOURS thì bỏ qua lượt hôm nay.
+    if posted:
+        try:
+            last = datetime.datetime.strptime(posted[-1]["at"], "%Y-%m-%d %H:%M UTC")
+            hrs = (datetime.datetime.utcnow() - last).total_seconds() / 3600
+            if hrs < MIN_HOURS:
+                print(f"CHƯA TỚI CỮ: mới đăng {hrs:.1f}h trước (cần ≥{MIN_HOURS}h) → bỏ qua hôm nay.")
+                return 0
+        except Exception as e:
+            print("Không đọc được thời gian bài trước, vẫn tiếp tục:", e)
 
     nxt = next((item for item in queue if item["id"] not in posted_ids), None)
     if nxt is None:
