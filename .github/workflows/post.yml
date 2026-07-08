@@ -2,9 +2,8 @@ name: Đăng Reel Instagram tự động
 
 on:
   schedule:
-    # GitHub Actions dùng giờ UTC. VN = UTC+7.
-    # Chạy KIỂM TRA mỗi tối 19:30 VN, nhưng post_next.py chỉ đăng nếu cách
-    # bài trước >= 40h → ra nhịp ~2 ngày/bài (an toàn cho account mới).
+    # GitHub Actions dùng giờ UTC. VN = UTC+7. => 2 Reel/ngày (trưa + tối).
+    - cron: "30 5 * * *"    # 12:30 VN (trưa)
     - cron: "30 12 * * *"   # 19:30 VN (tối)
   workflow_dispatch:         # cho phép bấm chạy thủ công để test
 

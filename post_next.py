@@ -5,7 +5,7 @@ Trạng thái đã đăng lưu ở posted.json (Actions commit lại sau mỗi l
 import datetime, json, os, sys, time, urllib.parse, urllib.request, urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-MIN_HOURS = 40  # giãn cách tối thiểu giữa 2 lần đăng → nhịp ~2 ngày/bài
+MIN_HOURS = 4  # giãn cách tối thiểu giữa 2 lần đăng (chống đăng trùng); 2 cữ/ngày cách ~7h
 USER_ID = os.environ["IG_USER_ID"]
 TOKEN = os.environ["IG_ACCESS_TOKEN"]
 BASE = "https://graph.instagram.com/v21.0"
